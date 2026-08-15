@@ -138,6 +138,46 @@ codex-auth switch abc3836139@qq.com  # 切到拼车号
 
 ![桌面App登录成功](桌面App登录成功.png)
 
+## PAT 账号的坑：CLI 能用，桌面 App 不能用
+
+拼车号现在有**两种格式**，差别很大：
+
+| 格式 | token 样子 | refresh_token | CLI | 桌面 App |
+|------|-----------|---------------|-----|----------|
+| OAuth | `eyJhbGciOi...`（JWT） | 有 | ✅ | ✅ |
+| PAT（个人访问令牌） | `at-...` 短串 | 无 | ✅ | ❌ |
+
+上面 Step 1~4 用的是 **OAuth 格式**（`abc3836139@qq.com`）。后来换的 `gusset_soother_70@icloud.com` 是 **PAT 格式**（`sub2api-account.json`，`access_token` 是 `at-` 开头、没有 `refresh_token`）。
+
+### 现象
+
+- CLI（`codex`）：✅ 正常
+- 桌面 App：❌ 读得到账号，但启动时账号校验失败，判「未登录」
+
+### 原因
+
+App 启动会调 `https://chatgpt.com/backend-api/wham/accounts/check` 校验账号，OpenAI 对 PAT token 返回：
+
+```
+HTTP 401  "rejected_by_access_enforcement" / "no_matching_rule"
+```
+
+PAT token 只对 Codex 的**代码生成接口**有效，过不了 App 的**账号校验**（后者要完整的 OAuth 网页会话）。
+
+### 怎么办
+
+- 只用 CLI → PAT / OAuth 都行。
+- 要用桌面 App → **只能 OAuth 格式**，找车头要带 `refresh_token` 的账号。
+
+### 附：PAT 账号怎么手动塞进 App 注册表
+
+codex-auth v0.2.10 还不支持 PAT（`import` 报 `MissingRefreshToken`），要手动写：
+
+1. 在 `~/.codex/accounts/registry.json` 的 `accounts` 里加一条，并把 `active_account_key` 指向它
+2. 建一个 `base64("{chatgpt_user_id}::{chatgpt_account_id}").auth.json` 文件，内容照抄 `~/.codex/auth.json`
+
+> 注意：手动塞进去只是让 App「看到」这个账号，**解决不了上面的 401**——PAT 该登不上 App 还是登不上。
+
 ## 常见问题
 
 ### 为什么 CLI 能跑、App 里却没有这个号？
