@@ -77,6 +77,8 @@
 2. 首次启动会自动「播种」官方供应商（Claude / OpenAI(codex) / Gemini / Grok）
 3. 用「导入」把 Step 1 的 JSON 导进去
 
+![CCSwitch界面](CCSwitch界面.png)
+
 判断是否导入成功：CC Switch 的数据在 `~/.cc-switch/cc-switch.db`（SQLite），看 `providers` 表里 `settings_config.auth.accounts[0].name` 是不是 `8月15日00.09发车-7d-abc3836139 team-8fdbed-BCA00E86BE17`。
 
 > Codex 有**两套互相独立的登录存储**，这是后面所有坑的根源：
@@ -96,7 +98,9 @@
 codex
 ```
 
-正常会进入交互界面，默认模型是 `gpt-5.6-sol`。
+正常会进入交互界面，默认模型是 `gpt-5.6-sol`，底部会显示账号和每周限额：
+
+![CLI账号与限额](CLI账号与限额.png)
 
 如果看到 **`Input disabled until setup completes.`** + 一个 `chatgpt.com/codex` 链接，说明 Codex 认为你没登录：
 
