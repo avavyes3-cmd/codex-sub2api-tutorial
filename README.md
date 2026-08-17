@@ -178,6 +178,46 @@ codex-auth v0.2.10 还不支持 PAT（`import` 报 `MissingRefreshToken`），�
 
 > 注意：手动塞进去只是让 App「看到」这个账号，**解决不了上面的 401**——PAT 该登不上 App 还是登不上。
 
+## 账号被吊销（401 token_revoked）怎么办
+
+拼车号最常见的坑：**token 被 OpenAI 吊销**。任何请求都返回：
+
+```json
+{ "error": { "code": "token_revoked", "message": "Encountered invalidated oauth token for user" }, "status": 401 }
+```
+
+（老一点的号是 `token_invalidated`，含义一样。）
+
+### 为什么会被吊销
+
+1. 车头踢人/换人——新乘客发车时旧 token 作废；
+2. OpenAI 风控识别出多人共享，直接吊销；
+3. 号被用滥了。
+
+### 判断是「死号」还是「还能救」
+
+用 token 直接打接口：
+
+```bash
+curl -s -x http://127.0.0.1:7891 \
+  -H "Authorization: Bearer <access_token>" \
+  "https://chatgpt.com/backend-api/wham/usage"
+```
+
+- 返回 `used_percent` + `limit_reached` → 有效；
+- 返回 `token_revoked` / `token_invalidated` → 死号。
+
+### 401 可以复活
+
+**token 被吊销 ≠ 账号没了**。车头重新登录一次就能生成新 token（俗称「复活」）。流程：
+
+1. 找车头要新的 `sub2api` JSON（同邮箱同账号，只是 token 换新）；
+2. 用上面的 curl 验证新 token；
+3. 把新 token 写进 `~/.codex/auth.json` 和 `~/.codex/accounts/<base64(account_key)>.auth.json`（两个文件都要换）；
+4. **杀掉 `ChatGPT.exe` 进程再重开 App**。
+
+> 关键坑：桌面 App 的进程名是 **`ChatGPT.exe`**（在 `WindowsApps\OpenAI.Codex` 包里），不是 `codex.exe`。换账号/换 token 后必须杀 `ChatGPT.exe` 重启，否则它带着旧状态一直刷 401。
+
 ## 常见问题
 
 ### 为什么 CLI 能跑、App 里却没有这个号？
