@@ -254,6 +254,25 @@ codex-auth remove <邮箱>       # 删除
 codex-auth clean             # 清理残留
 ```
 
+## 用过的账号记录
+
+> 备忘：本人用过的拼车号（私有仓库，只给自己看）。
+
+| 邮箱 | 格式 | 结果 |
+|------|------|------|
+| `abc3836139@qq.com` | sub2api OAuth | `token_invalidated`，死号，已删 |
+| `yangzhuo167@gmail.com` | OAuth | 401 死号，已删 |
+| `gusset_soother_70@icloud.com` | PAT | CLI 可用，App 登不上，备用 |
+| `quincyjohnson0872+punfh@gmail.com` | OAuth | 复活过一次，可用 |
+| `peimcvay@gmail.com` | codex 卡密 | 需转换网址生成 synthetic id_token |
+| `mariasmithe038+8851@gmail.com` | OAuth | 新号 |
+
+三种格式一句话区分：
+
+- **sub2api OAuth**：带真实 `id_token`，CLI + App 都能直接用；
+- **codex 卡密**：不带 `id_token`，要拿卡密去转换网址（`http://xgrok.xdo.icu:18363/`）转成 codex 格式（生成 synthetic id_token）才能用；
+- **PAT**：`at-...` 短 token，只能 CLI。
+
 ## 免责声明
 
 拼车/合租属于共享订阅，不符合 OpenAI 官方规则，存在封号、掉号、限流风险。本教程仅为个人经验备忘，请自行评估风险；账号与 token 视同密码，请勿外传。
