@@ -265,7 +265,8 @@ codex-auth clean             # 清理残留
 | `gusset_soother_70@icloud.com` | PAT | CLI 可用，App 登不上，备用 |
 | `quincyjohnson0872+punfh@gmail.com` | OAuth | 复活过一次，可用 |
 | `peimcvay@gmail.com` | codex 卡密 | 需转换网址生成 synthetic id_token |
-| `mariasmithe038+8851@gmail.com` | OAuth | 新号 |
+| `mariasmithe038+8851@gmail.com` | OAuth | 可用（已换下） |
+| `ashtonainsworth4857+vic9j@gmail.com` | OAuth | 当前在用 |
 
 三种格式一句话区分：
 
