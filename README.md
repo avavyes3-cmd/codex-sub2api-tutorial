@@ -218,6 +218,58 @@ curl -s -x http://127.0.0.1:7891 \
 
 > 关键坑：桌面 App 的进程名是 **`ChatGPT.exe`**（在 `WindowsApps\OpenAI.Codex` 包里），不是 `codex.exe`。换账号/换 token 后必须杀 `ChatGPT.exe` 重启，否则它带着旧状态一直刷 401。
 
+## API 中转站（OpenAI 兼容）vs 反代（sub2api）
+
+除了「反代 / OAuth 拼车」这一路，还有一类叫 **API 中转站**（OpenAI 兼容网关，如 APINebula）——用自己的 API key，不依赖 OAuth 登录，按 token 计费。
+
+### 两者区别
+
+| | 反代（sub2api / OAuth） | API 中转站（如 APINebula） |
+|---|---|---|
+| 认证 | OAuth token（拼车号） | 自己的 API key |
+| 计费 | 按号租期（7 天） | 按 token 用量 |
+| 号会被吊销 | 会（`token_revoked` 频繁） | 不会（key 是自己的） |
+| **接续对话** | ✅ 能（走 `chatgpt.com` 会话） | ❌ 不能（无状态 API） |
+| 桌面 App | ✅ OAuth 登录 | ⚠️ 受限 |
+
+> 核心差异：**反代能接续对话，中转站不能**。反代走 `chatgpt.com/backend-api` 的会话机制，thread 存在 OpenAI 侧；中转站走 `/v1/responses` 无状态 API，每次请求独立，没有会话可续。
+
+### 配置（以 APINebula 为例）
+
+`config.toml`：
+
+```toml
+model = "gpt-5.6-sol"
+model_provider = "nebula"
+model_reasoning_effort = "medium"
+
+[model_providers.nebula]
+name = "nebula"
+base_url = "https://apinebula.ai/v1"
+wire_api = "responses"
+requires_openai_auth = false      # 关键！不能写 true
+env_key = "APINEBULA_API_KEY"     # key 走独立环境变量
+```
+
+`auth.json` 留空（`{}`），key 用环境变量传入：
+
+```bash
+setx APINEBULA_API_KEY "sk-xxxx"
+setx APINEBULA_BASE_URL "https://apinebula.ai/v1"
+```
+
+### 关键坑：requires_openai_auth 写 true 会走官方
+
+中转站文档常写 `requires_openai_auth = true`，但**新版 Codex 里 true 的真实含义是「用 OpenAI 认证走官方」**——`base_url` 被忽略，请求全打到 `api.openai.com`，报 `401 invalid_api_key`。
+
+**正确做法**：`requires_openai_auth = false` + `env_key`（独立环境变量），key 跟 OAuth 登录态彻底解耦。
+
+### 能用哪些端
+
+- **CLI**：✅ 实测通过（`provider: nebula`，模型正常返回）
+- **VS Code 插件**：✅ 读同一套 config
+- **桌面 App**：⚠️ 新版 App 强制 OAuth 登录（启动就调 `chatgpt.com/backend-api/settings/user`，纯 API key 喂不了，报 `no_token_attached`）；即便按文档配上了，**中转站也接续不了对话**，不如反代。
+
 ## 常见问题
 
 ### 为什么 CLI 能跑、App 里却没有这个号？
