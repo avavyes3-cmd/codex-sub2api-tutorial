@@ -234,6 +234,12 @@ curl -s -x http://127.0.0.1:7891 \
 
 > 核心差异：**反代能接续对话，中转站不能**。反代走 `chatgpt.com/backend-api` 的会话机制，thread 存在 OpenAI 侧；中转站走 `/v1/responses` 无状态 API，每次请求独立，没有会话可续。
 
+### 消耗示例
+
+实测 60 次请求、约 623 万 token，消耗 ¥2.49 左右，折合约 **¥0.4 / 百万 token**，比 OpenAI 官方 API（¥30+/百万 token）便宜两个数量级：
+
+![中转站消耗](中转站消耗.png)
+
 ### 配置（以 APINebula 为例）
 
 `config.toml`：
