@@ -332,6 +332,8 @@ codex-auth clean             # 清理残留
 - **codex 卡密**：不带 `id_token`，要拿卡密去转换网址（`http://xgrok.xdo.icu:18363/`）转成 codex 格式（生成 synthetic id_token）才能用；
 - **PAT**：`at-...` 短 token，只能 CLI。
 
+> 补充：除了车头发号，还能**自己登录 ChatGPT 后转号**——浏览器登录 GPT，打开 `https://chatgpt.com/api/auth/session` 复制整段 JSON，丢进本地转换工具 [GPTSession2CPAandSub2API](https://gtxx3600.github.io/GPTSession2CPAandSub2API/) 转成 sub2api / CPA 格式（浏览器本地解析，token 不上传）。
+
 ## 免责声明
 
 拼车/合租属于共享订阅，不符合 OpenAI 官方规则，存在封号、掉号、限流风险。本教程仅为个人经验备忘，请自行评估风险；账号与 token 视同密码，请勿外传。
