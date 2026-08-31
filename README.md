@@ -334,6 +334,20 @@ codex-auth clean             # 清理残留
 
 > 补充：除了车头发号，还能**自己登录 ChatGPT 后转号**——浏览器登录 GPT，打开 `https://chatgpt.com/api/auth/session` 复制整段 JSON，丢进本地转换工具 [GPTSession2CPAandSub2API](https://gtxx3600.github.io/GPTSession2CPAandSub2API/) 转成 sub2api / CPA 格式（浏览器本地解析，token 不上传）。
 
+## 附录：手动导入到底改哪些文件
+
+（agent 辅助导入时用）导入一个号，本质就是往 `~/.codex/` 三个文件写对内容：
+
+| 文件 | 作用 |
+|------|------|
+| `~/.codex/auth.json` | 当前登录凭证（OAuth 三件套 或 API key） |
+| `~/.codex/accounts/registry.json` | 账号列表 + `active_account_key`（当前用哪个） |
+| `~/.codex/accounts/<base64(uid::cid)>.auth.json` | 每个账号一个存档 |
+
+流程：解析 JSON → 提取 `access_token` / `id_token` / `refresh_token` / `chatgpt_account_id` / `chatgpt_user_id` → 组装成 `auth.json` 格式 → 写上面三个文件。
+
+> 这种手动写文件的方式**只适合 agent 辅助**，人手动操作很繁琐。人用的话建议走图形界面的 **CC Switch**（见独立文件 [CCSwitch教学.md](CCSwitch教学.md)）。
+
 ## 免责声明
 
 拼车/合租属于共享订阅，不符合 OpenAI 官方规则，存在封号、掉号、限流风险。本教程仅为个人经验备忘，请自行评估风险；账号与 token 视同密码，请勿外传。
